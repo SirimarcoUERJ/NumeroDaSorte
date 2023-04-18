@@ -31,7 +31,6 @@ class Game:
     def Set_choice(self, choice):
         """ Verifica se o palpite do usuário é maior, menor ou igual ao número gerado aleatoriamente. Retorna um sinal (-1, 0 ou 1) para indicar a resposta."""
 
-        response = -1
         self.times += 1
         
         if choice > self.number:
@@ -46,7 +45,7 @@ class Game:
     def restart_game(self):
         """Reinicia o jogo gerando um novo número aleatório e reiniciando o contador de tentativas."""
         
-        self.number = np.random.randint(0,self.limit)
+        self.number = np.random.randint(0,self.limit+1)
         self.times = 0
         
     def won(self, choice):
@@ -86,3 +85,4 @@ class Game:
 
                 else:
                     running = False
+
