@@ -18,14 +18,21 @@ def print_game_state(user_number, user_feedback_str, agent_number, tentativas, r
 
     return None
 
-# Define o número máximo possível e o nome do arquivo que irá armazenar a tabela Q
-possiveis_numeros_da_sorte = 10
-# filename = "Luck_game["+str(possiveis_numeros_da_sorte)+"].pkl"
-filename = "Luck_game.pkl"
+while True:
+    try:
+        # Numero de partidas
+        n_partidas = int(input("Quantas partidas vamos jogar? (int): "))
+        
+        # Define o número máximo possível da tabela Q
+        possiveis_numeros_da_sorte = int(input("\nEscolha o limite superior para treinarmos a 'AI'\nlimite inferior = 0.\nLimite Superior = "))
+        
+        break
+    except:
+        print("\nErro! Os valores esperados são do Tipo <class 'int'>.\n")
 
 # Cria instâncias do jogo e da IA
 game = BS.Game(maior_possivel=possiveis_numeros_da_sorte)
-AI = ML.Q_Ai(possiveis_numeros_da_sorte, filename, 0.5)
+AI = ML.Q_Ai(possiveis_numeros_da_sorte, 0.5)
 
 # Define as variáveis iniciais do jogo
 running = True
@@ -33,8 +40,6 @@ state = None
 partida = 1
 user_pts = 0
 agente_pts = 0
-
-n_partidas = int(input("Quantas partidas vamos jogar? (int): "))
 
 while running:
 
@@ -71,48 +76,47 @@ while running:
     # Verifica se houve um empate 
     if game.won(user_number) and game.won(number):
         game.restart_game()
-        partida += 1
         user_pts += 1
         agente_pts += 1
+        partida += 1
         
         print_game_state(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], user_pts, agente_pts)
         print("Você empatou com o agente!\n")
 
         # Verifica se todas as partidas foram jogadas para interromper o loop, ou pergunta ao jogador se deseja continuar jogando.
-        if partida >= n_partidas:
+        if partida > n_partidas:
             running = False
     
     # Verifica se o usuario ganhou
     if game.won(user_number):
         user_pts += 1
         game.restart_game()
+        partida += 1
         
         print_game_state(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], user_pts, arg[7])
         print("Você acertou! Parabéns!\n")
 
         # Verifica se todas as partidas foram jogadas para interromper o loop, ou pergunta ao jogador se deseja continuar jogando.
-        if partida >= n_partidas:
+        if partida > n_partidas:
             running = False
-            partida += 1
-            
+
     # Verifica se o agente ganhou
     if game.won(number):
         agente_pts += 1
+        partida += 1
+        game.restart_game()
 
         print_game_state(arg[0], arg[1], arg[2], arg[3], arg[4], arg[5], arg[6], agente_pts)
         print("Você perdeu para o agente! Parabéns burrão!\n")
         
         # Verifica se todas as partidas foram jogadas para interromper o loop, ou pergunta ao jogador se deseja continuar jogando.
-        if partida >= n_partidas:
+        if partida > n_partidas:
             running = False
         
-        # Reinicia o estado do jogo e define o próximo movimento como a última jogada, para ser utilizado na próxima rodada.
-        game.restart_game()
-        partida += 1
-
-        if partida == n_partidas + 1 or partida / 1000 == partida // 1000:
-            print("\nTabela Salva\n")
-            AI.save_table(filename)
+    # Salva a tabela Q com as novas interações.
+    if partida == n_partidas + 1:
+        print("\nTabela Salva\n")
+        AI.save_table()
 
     number = next_number
     feedback = next_feedback
